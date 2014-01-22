@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Ejemplo usando Fusion Tables layers</title>
+    <style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#googft-legend{background-color:#fff;border:1px solid #000;font-family:Arial, sans-serif;font-size:12px;margin:5px;padding:10px 10px 8px;}#googft-legend p{font-weight:bold;margin-top:0;}#googft-legend div{margin-bottom:5px;}.googft-legend-swatch{border:1px solid;float:left;height:12px;margin-right:8px;width:20px;}.googft-legend-range{margin-left:0;}.googft-dot-icon{margin-right:8px;}.googft-paddle-icon{height:24px;left:-8px;margin-right:-8px;position:relative;vertical-align:middle;width:24px;}.googft-legend-source{margin-bottom:0;margin-top:8px;}.googft-legend-source a{color:#666;font-size:11px;}
+
+#map-canvas, #map_canvas {
+  height: 100%;
+}
+
+@media print {
+  html, body {
+    height: auto;
+  }
+
+  #map-canvas, #map_canvas {
+    height: 650px;
+  }
+}
+
+#panel {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  margin-left: -180px;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+}
+
+a.class{
+  text-decoration: none;
+  margin: 1px;
+}
+
+.card{
+  font-size:smaller;
+  font-family: Roboto, Arial, sans-serif;
+  direction: ltr;
+  overflow: hidden; 
+  text-align: center; 
+  position: relative; 
+  color: rgb(0, 0, 0);  
+  -webkit-user-select: none; 
+  /* font-size: 11px; */ 
+  background-color: rgb(255, 255, 255);
+  padding: 1px 6px;
+  border-bottom-left-radius: 2px;
+  border-top-left-radius: 2px;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.14902);
+  -webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;
+  box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;
+  min-width: 30px; font-weight: 500;
+
+
+
+}
+    </style>
+    
+    <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+    <script src="interfaz.js"  type="text/javascript"></script>
+
+	
+    <script>
+var map, layer, infoWindow;
+
+function MostrarVentanaNodo(e){
+  
+}
+
+function initialize() {
+  var granada = new google.maps.LatLng(37.1829, -3.61411);
+
+  var isMobile = (navigator.userAgent.toLowerCase().indexOf('android') > -1) ||
+      (navigator.userAgent.match(/(iPod|iPhone|iPad|BlackBerry|Windows Phone|iemobile)/));
+    if (isMobile) {
+      var viewport = document.querySelector("meta[name=viewport]");
+      viewport.setAttribute('content', 'initial-scale=1.0, user-scalable=no');
+    }
+
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    center: granada,
+    zoom: 14,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+
+    if (isMobile) {
+      var legend = document.getElementById('googft-legend');
+      var legendOpenButton = document.getElementById('googft-legend-open');
+      var legendCloseButton = document.getElementById('googft-legend-close');
+      legend.style.display = 'none';
+      legendOpenButton.style.display = 'block';
+      legendCloseButton.style.display = 'block';
+      legendOpenButton.onclick = function() {
+        legend.style.display = 'block';
+        legendOpenButton.style.display = 'none';
+      }
+      legendCloseButton.onclick = function() {
+        legend.style.display = 'none';
+        legendOpenButton.style.display = 'block';
+      }
+    }
+
+var DateControlDiv = document.createElement('div');
+var DateControlInput = new DateControl(DateControlDiv,map);
+
+var HourControlDiv = document.createElement('div');
+var HourControlInput = new HourControl(HourControlDiv,map);
+
+DateControlDiv.index = 1;
+HourControlDiv.index = 1;
+
+map.controls[google.maps.ControlPosition.TOP_RIGHT].push(DateControlDiv);
+map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(HourControlDiv);
+
+map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('googft-legend-open'));
+map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('googft-legend'));
+
+
+  //Capa de Información personalizada
+  infoWindow = new google.maps.InfoWindow();
+
+//   layer_rango = new google.maps.FusionTablesLayer({
+//     query: {
+//       select: 'poligono',
+//       from: '1rkrEsPgpEfVKLeVGH6KF5IdeDFTRaCsCpLDxo7I'
+//     },
+//     options: {
+//             suppressInfoWindows: true
+//           },
+//     map: map,
+//     styles: [{
+//       polygonOptions: {
+//         fillColor: '#00FF00',
+//         fillOpacity: 0.3,
+//  strokeWeight: 0,
+//	strokeOpacity: 1,
+//	strokeColor: '#00FF00'
+//       }
+//     }]
+ //  });
+
+   layer_punto = new google.maps.FusionTablesLayer({
+     query: {
+       select: 'latitud',
+       from: '1rkrEsPgpEfVKLeVGH6KF5IdeDFTRaCsCpLDxo7I'
+     },options: {
+             suppressInfoWindows: true
+           },
+     map : map
+   });
+  
+  //Capa del Merge
+
+  var c = "Intervalo = '";
+
+  c += new Date().toDateInputValue();
+
+  c += " 00:00:00'"
+
+
+  layer = new google.maps.FusionTablesLayer({
+      map: map,
+      heatmap: { enabled: false },
+      query: {
+        select: "poligono",
+        from: "1P0NZPZZ2irwy7kjy7kqIwAI_v7M9PIwrcwEpIjc",
+        where: c
+      },
+      options: {
+        styleId: 2,
+        templateId: 2,
+        suppressInfoWindows: true
+      }
+    });
+
+
+  //Capa con el tráfico actual según GOOGLE
+ //var trafficLayer = new google.maps.TrafficLayer();
+  //trafficLayer.setMap(map);
+  
+  //InfoWindows
+
+
+
+   google.maps.event.addListener(layer, 'click', function(e) {
+           infoWindow.setContent(/*e.infoWindowHtml +*/
+        '<div><h1>'+e.row["nombre"].value+'</h1><h2>' +e.row["Total"].value+ ' pasos </h2>' + 
+               '<a class="card" target="_blanck" href="https://www.google.com/fusiontables/embedviz?containerId=gviz_canvas&amp;viz=GVIZ&amp;t=LINE_AGGREGATE&amp;isXyPlot=true&amp;bsize=0&amp;q=select+col0%2C+col2+from+1rr11J403xK3Yhlfv6yN71ET5H4HhG01HJeGhkYk+where+col1+%3D+&#39;'+e.row["idNodo"].value+'&#39;&amp;qrs=+and+col0+%3E%3D+&amp;qre=+and+col0+%3C%3D+&amp;qe=+order+by+col0+asc&amp;uiversion=2&amp;gco_forceIFrame=true&amp;gco_hasLabelsColumn=true&amp;width=500&amp;height=200">Histórico</a>'+
+               '<a class="card" target="_blanck" href="chart.php?nodo='+e.row["idNodo"].value+'">Gráfico interactivo</a></div>'
+               );
+              
+               console.log(e.row["idNodo"].value);
+           infoWindow.setPosition(e.latLng);
+           infoWindow.open(map);
+         });
+  
+  
+   // google.maps.event.addListener(layer, 'click', function(e) {
+   //         infoWindow.setContent(/*e.infoWindowHtml +*/
+ 		// 	  '<h1>'+e.row["nombre"].value+': ' +e.row["Total"].value+ ' pasos</h1>' + 
+   //             '<b>Histórico de dispositivos:</b><br/>' +
+   //             '<iframe width="500" height="200" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?containerId=gviz_canvas&amp;viz=GVIZ&amp;t=LINE_AGGREGATE&amp;isXyPlot=true&amp;bsize=0&amp;q=select+col0%2C+col2+from+1rr11J403xK3Yhlfv6yN71ET5H4HhG01HJeGhkYk+where+col1+%3D+&#39;'+e.row["idNodo"].value+'&#39;&amp;qrs=+and+col0+%3E%3D+&amp;qre=+and+col0+%3C%3D+&amp;qe=+order+by+col0+asc&amp;uiversion=2&amp;gco_forceIFrame=true&amp;gco_hasLabelsColumn=true&amp;width=500&amp;height=200"></iframe>'+
+   //             '<br/>' +
+   //             '<a target="_blanck" href="chart.php?nodo='+e.row["idNodo"].value+'"><b>Gráfico interactivo</b></a>'
+   //             );
+              
+   //             console.log(e.row["idNodo"].value);
+   //         infoWindow.setPosition(e.latLng);
+   //         infoWindow.open(map);
+   //       });
+  
+//   google.maps.event.addListener(layer_punto, 'click', function(e) {
+//           infoWindow.setContent(/*e.infoWindowHtml +*/
+//         '<h1>'+e.row["nombre"].value+'</h1>' + 
+//               '<b>Histórico de dispositivos:</b><br/>' +
+//               '<iframe width="500" height="200" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?containerId=gviz_canvas&amp;viz=GVIZ&amp;t=LINE_AGGREGATE&amp;isXyPlot=true&amp;bsize=0&amp;q=select+col0%2C+col2+from+1rr11J403xK3Yhlfv6yN71ET5H4HhG01HJeGhkYk+where+col1+%3D+&#39;'+e.row["idNodo"].value+'&#39;&amp;qrs=+and+col0+%3E%3D+&amp;qre=+and+col0+%3C%3D+&amp;qe=+order+by+col0+asc&amp;uiversion=2&amp;gco_forceIFrame=true&amp;gco_hasLabelsColumn=true&amp;width=500&amp;height=200"></iframe>'+
+//               '<br/>'+
+//               '<a target="_blanck" href="chart.php?nodo='+e.row["idNodo"].value+'"><b>Gráfico interactivo</b></a>'
+//                );
+              
+//               console.log(e.row["idNodo"].value);
+//           infoWindow.setPosition(e.latLng);
+//           infoWindow.open(map);
+//         });
+
+ }
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+//google.maps.event.addDomListener(, 'projection_changed', updatelayer());
+
+
+
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+
+    <input id="googft-legend-open" style="display:none;font-size:smaller; font-family: Roboto, Arial, sans-serif;direction: ltr; overflow: hidden; text-align: center; position: relative; color: rgb(0, 0, 0); font-family: Roboto, Arial, sans-serif; -webkit-user-select: none; /* font-size: 11px; */ background-color: rgb(255, 255, 255); padding: 1px 6px; border-bottom-left-radius: 2px; border-top-left-radius: 2px; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid rgba(0, 0, 0, 0.14902); -webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; min-width: 30px; font-weight: 500;" type="button" value="Legend"></input>
+<div id="googft-legend" style="font-size:smaller; font-family: Roboto, Arial, sans-serif;direction: ltr; overflow: hidden; text-align: center; color: rgb(0, 0, 0); font-family: Roboto, Arial, sans-serif; -webkit-user-select: none; /* font-size: 11px; */ background-color: rgb(255, 255, 255); padding: 1px 6px; border-bottom-left-radius: 2px; border-top-left-radius: 2px; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid rgba(0, 0, 0, 0.14902); -webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;">
+    <p id="googft-legend-title">Total</p>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #e0ffd4"></span>
+      <span class="googft-legend-range">1</span>
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #93c47d"></span>
+      <br />
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #38761d"></span>
+      <br />
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #ffe599"></span>
+      <br />
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #f1c232"></span>
+      <br />
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #e69138"></span>
+      <br />
+    </div>
+    <div>
+      <span class="googft-legend-swatch" style="background-color: #ff0000"></span>
+      <span class="googft-legend-range">1,000</span>
+    </div>
+    <input id="googft-legend-close" style="display:none;font-size:smaller; font-family: Roboto, Arial, sans-serif;direction: ltr; overflow: hidden; text-align: center; position: relative; color: rgb(0, 0, 0); font-family: Roboto, Arial, sans-serif; -webkit-user-select: none; /* font-size: 11px; */ background-color: rgb(255, 255, 255); padding: 1px 6px; border-bottom-left-radius: 2px; border-top-left-radius: 2px; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid rgba(0, 0, 0, 0.14902); -webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; min-width: 30px; font-weight: 500;" type="button" value="Hide"></input>
+  </div>
+  </body>
+</html>
