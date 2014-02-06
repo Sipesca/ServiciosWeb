@@ -73,12 +73,14 @@ a.class{
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 	  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-
     <script src="interfaz.js"  type="text/javascript"></script>
 
 	
     <script>
 var map, layer, infoWindow;
+var nodo, nodo_posicion, nodo_marcador;
+var tramo, tramo_posicion, tramo_marcador;
+
 
 function MostrarVentanaNodo(e){
   
@@ -123,11 +125,17 @@ var DateControlInput = new DateControl(DateControlDiv,map);
 var HourControlDiv = document.createElement('div');
 var HourControlInput = new HourControl(HourControlDiv,map);
 
+var InfoControlDiv = document.createElement('div');
+var InfoControlInput = new InfoControl(InfoControlDiv,map);
+
+
+
 DateControlDiv.index = 1;
 HourControlDiv.index = 1;
 
 map.controls[google.maps.ControlPosition.TOP_RIGHT].push(DateControlDiv);
 map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(HourControlDiv);
+map.controls[google.maps.ControlPosition.TOP_CENTER].push(InfoControlDiv);
 
 map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('googft-legend-open'));
 map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('googft-legend'));
@@ -169,9 +177,7 @@ map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById
   //Capa del Merge
 
   var c = "Intervalo = '";
-
   c += new Date().toDateInputValue();
-
   c += " 00:00:00'"
 
 
@@ -190,6 +196,36 @@ map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById
       }
     });
 
+  layer_trazas = new google.maps.FusionTablesLayer({
+   /* map: map, */
+      heatmap: { enabled: false },
+      query: {
+        select: "poligono",
+        from: "13KdXSpmkSVZkGVXxpNJ5soZE-M0hY2y_bDXOFdg",
+      },
+      options: {
+        styleId: 2,
+        templateId: 2,
+        suppressInfoWindows: true
+      }
+    });
+
+  nodo_marcador = new google.maps.Marker({
+            visible: false,
+            animation: google.maps.Animation.BOUNCE,
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/kml/pal5/icon6.png',
+            title: 'Nodo Seleccionado'
+  });
+
+  tramo_marcador = new google.maps.Marker({
+            visible: false,
+            //animation: google.maps.Animation.BOUNCE,
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/kml/pal5/icon5.png',
+            title: 'Nodo Seleccionado'
+  });
+
 
   //Capa con el tráfico actual según GOOGLE
  //var trafficLayer = new google.maps.TrafficLayer();
@@ -197,18 +233,73 @@ map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById
   
   //InfoWindows
 
+  google.maps.event.addListener(layer_trazas, 'click', function(e) {
+        cadena = '<div>'+e.row["total"].value+ ' pasos.<br/> Trayecto promedio:'+e.row["Diferencia"].value+' (s) </div> <a class="card" target="_blanck" href="#">Botón </> <a class="card" target="_blanck" href="#">Botón</>'  ;
+        $("#ventanaInfoTramoValor").html(cadena);
+
+        tramo_marcador.setPosition(e.latLng);
+        tramo_marcador.setVisible(true);
+
+        //Reajustamos la interfaz, centrados y esas cosas
+        google.maps.event.trigger(map, "resize");
+  });
 
 
    google.maps.event.addListener(layer, 'click', function(e) {
-           infoWindow.setContent(/*e.infoWindowHtml +*/
-        '<div><h1>'+e.row["nombre"].value+'</h1><h2>' +e.row["Total"].value+ ' pasos </h2>' + 
+  /*         infoWindow.setContent(/*e.infoWindowHtml +*/
+ /*       '<div><h1>'+e.row["nombre"].value+'</h1><h2>' +e.row["Total"].value+ ' pasos </h2>' + 
                '<a class="card" target="_blanck" href="https://www.google.com/fusiontables/embedviz?containerId=gviz_canvas&amp;viz=GVIZ&amp;t=LINE_AGGREGATE&amp;isXyPlot=true&amp;bsize=0&amp;q=select+col0%2C+col2+from+1rr11J403xK3Yhlfv6yN71ET5H4HhG01HJeGhkYk+where+col1+%3D+&#39;'+e.row["idNodo"].value+'&#39;&amp;qrs=+and+col0+%3E%3D+&amp;qre=+and+col0+%3C%3D+&amp;qe=+order+by+col0+asc&amp;uiversion=2&amp;gco_forceIFrame=true&amp;gco_hasLabelsColumn=true&amp;width=500&amp;height=200">Histórico</a>'+
                '<a class="card" target="_blanck" href="chart.php?nodo='+e.row["idNodo"].value+'">Gráfico interactivo</a></div>'
-               );
+               ); */
+
+          cadena = '<div><b>'+e.row["nombre"].value+'</b><br/> <label id="ventanaInfoNodoValorPasos">' 
+          + e.row["Total"].value+ ' pasos </label>' + 
+               '<br/><a class="card" target="_blanck" href="https://www.google.com/fusiontables/embedviz?containerId=gviz_canvas&amp;viz=GVIZ&amp;t=LINE_AGGREGATE&amp;isXyPlot=true&amp;bsize=0&amp;q=select+col0%2C+col2+from+1rr11J403xK3Yhlfv6yN71ET5H4HhG01HJeGhkYk+where+col1+%3D+&#39;'+e.row["idNodo"].value+'&#39;&amp;qrs=+and+col0+%3E%3D+&amp;qre=+and+col0+%3C%3D+&amp;qe=+order+by+col0+asc&amp;uiversion=2&amp;gco_forceIFrame=true&amp;gco_hasLabelsColumn=true&amp;width=500&amp;height=200">Histórico</a>'+
+               '<a class="card" target="_blanck" href="chart.php?nodo='+e.row["idNodo"].value+'">Gráfico interactivo</a></div>'
+
+          $("#ventanaInfoNodoValor").html(cadena);
               
-               console.log(e.row["idNodo"].value);
-           infoWindow.setPosition(e.latLng);
-           infoWindow.open(map);
+           console.log(e.row["idNodo"].value);
+           //infoWindow.setPosition(e.latLng);
+           //infoWindow.open(map);
+
+           if(nodo_marcador.getVisible() == false || nodo != e.row["idNodo"]){
+           //Código para las trazas
+            var cadena = "Fecha = '";
+            cadena += $("#map-date").val();
+            cadena += " ";
+            cadena += $("#map-hour").val();
+            cadena += ":00:00'"
+
+            nodo = e.row["idNodo"].value;
+            //nodo_posicion = e.latLng;
+
+            nodo_posicion = new google.maps.LatLng(e.row["latitud"].value,e.row["longitud"].value);
+
+            cadena += " AND Origen='";
+            cadena += nodo;
+            cadena += "'";
+
+            console.log(cadena);
+
+            layer_trazas.query.where = cadena;
+            layer_trazas.setMap(map);
+
+            nodo_marcador.setPosition(nodo_posicion);
+            nodo_marcador.setVisible(true);
+
+            //Reajustamos la interfaz, para centrar los elementos
+            google.maps.event.trigger(map, "resize");
+
+
+          }else{
+            layer_trazas.setMap(null);
+            nodo_marcador.setVisible(false);
+            nodo = null;
+            nodo_posicion = null;
+
+          }
+
          });
   
   

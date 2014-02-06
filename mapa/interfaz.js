@@ -3,7 +3,6 @@
 //Variable del cronómetro para el PLAY del tiempo
 var crono;
 
-
 Date.prototype.toDateInputValue = (function() {
     var local = new Date(this);
     local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
@@ -32,6 +31,33 @@ function updatelayer(){
   layer.setMap(map);
   infoWindow.close();
 
+  //Codigo de las trazas
+  cadena = "Fecha = '";
+  cadena += $("#map-date").val();
+  cadena += " ";
+  cadena += $("#map-hour").val();
+  cadena += ":00:00'"
+  cadena += " AND Origen='";
+  cadena += nodo;
+  cadena += "'";
+
+  layer_trazas.query.where = cadena;
+  layer_trazas.setMap(map);
+
+  //Actualizamos la información mostrada en el Info usando un disparador
+  if(nodo != null){
+    var mev = {stop: null, latLng: nodo_posicion }
+  //google.maps.event.trigger(layer, 'click', {latLng:nodo_posicion});
+
+   $("#ventanaInfoTramoValor").html("");
+   $("#ventanaInfoNodoValorPasos").html("");
+
+   //Hacemos invisible el tramo
+   tramo_marcador.setVisible(false);
+
+   //Volvemos a ajustar la interfaz (para los centrados y eso)
+   google.maps.event.trigger(map, "resize");
+}
 }
 
 function DateControl(controlDiv,map){
@@ -61,6 +87,32 @@ var controlUI = document.createElement('div');
   controlText.innerHTML = cadena;
   controlUI.appendChild(controlText);
 }
+
+function InfoControl(controlDiv,map){
+controlDiv.style.padding = '5px';
+
+var controlUI = document.createElement('div');
+  controlUI.style.textAlign = 'center';
+  //controlUI.className = "card";
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior
+  var controlText = document.createElement('div');
+  controlText.style.fontFamily = 'Arial,sans-serif';
+  controlText.style.fontSize = '14px';
+  controlText.style.paddingLeft = '4px';
+  controlText.style.paddingRight = '4px';
+
+  var cadena = "";
+
+  cadena = '<div id ="ventanaInfoNodo" class="card" style="display:block;" > Nodo: <div id="ventanaInfoNodoValor" style="display:inline"> </div></div>';
+
+  cadena = cadena + '<div id ="VentanaInfoTramo" style="display:block;" class="card" > Tramo: <div id="ventanaInfoTramoValor" style="display:inline"> </div> </div>';
+
+  controlText.innerHTML = cadena;
+  controlUI.appendChild(controlText);
+}
+
 
 function HourControl(controlDiv,map){
 
