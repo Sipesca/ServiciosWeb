@@ -6,7 +6,15 @@ var crono;
 Date.prototype.toDateInputValue = (function() {
     var local = new Date(this);
     local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+
     return local.toJSON().slice(0,10);
+});
+
+Date.prototype.toHourInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+
+    return local.toJSON().slice(11,13) ;
 });
 
 Date.prototype.addDays = function(days) {
@@ -55,9 +63,15 @@ function updatelayer(){
    //Hacemos invisible el tramo
    tramo_marcador.setVisible(false);
 
+   console.log("Hola mundo");
+
    //Volvemos a ajustar la interfaz (para los centrados y eso)
    google.maps.event.trigger(map, "resize");
+
 }
+
+  //¿Con esto dejamos el punto detrás de los gráficos?
+  layer_punto.setMap(map);
 }
 
 function DateControl(controlDiv,map){
@@ -93,6 +107,7 @@ controlDiv.style.padding = '5px';
 
 var controlUI = document.createElement('div');
   controlUI.style.textAlign = 'center';
+  //controlUI.style.marginTop = '20px';
   //controlUI.className = "card";
   controlDiv.appendChild(controlUI);
 
@@ -105,7 +120,7 @@ var controlUI = document.createElement('div');
 
   var cadena = "";
 
-  cadena = '<div id ="ventanaInfoNodo" class="card" style="display:block;" > Nodo: <div id="ventanaInfoNodoValor" style="display:inline"> </div></div>';
+  cadena = '<div id ="ventanaInfoNodo" class="card" style="display:block;" > Nodo <label id="ventanaInfoNodoValor" style="display:inline"/></div>';
 
   cadena = cadena + '<div id ="VentanaInfoTramo" style="display:block;" class="card" > Tramo: <div id="ventanaInfoTramoValor" style="display:inline"> </div> </div>';
 
@@ -116,13 +131,9 @@ var controlUI = document.createElement('div');
 
 function HourControl(controlDiv,map){
 
-controlDiv.style.cssText = "padding:5px;background-color:white;width:65%; margin-bottom:20px;font-size: smaller;direction: ltr;overflow: hidden;text-align: center;position: relative;color: rgb(0, 0, 0);-webkit-user-select: none;font-size: 11px;background-color: rgb(255, 255, 255);padding: 1px 6px;border-bottom-left-radius: 2px;border-top-left-radius: 2px;-webkit-background-clip: padding-box;background-clip: padding-box;border: 1px solid rgba(0, 0, 0, 0.14902);-webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;";
+controlDiv.style.cssText = "padding:5px;background-color:white;width:25%; margin-bottom:20px;font-size: smaller;direction: ltr;overflow: hidden;text-align: center;position: relative;color: rgb(0, 0, 0);-webkit-user-select: none;font-size: 11px;background-color: rgb(255, 255, 255);padding: 1px 6px;border-bottom-left-radius: 2px;border-top-left-radius: 2px;-webkit-background-clip: padding-box;background-clip: padding-box;border: 1px solid rgba(0, 0, 0, 0.14902);-webkit-box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;";
 
 var controlUI = document.createElement('div');
-  //controlUI.style.backgroundColor = 'white';
-  //controlUI.style.borderStyle = 'solid';
-  //controlUI.style.borderColor = 'white';
-  //controlUI.style.borderWidth = '2px';
   controlUI.style.cursor = 'pointer';
   controlUI.style.textAlign = 'center';
   controlUI.title = 'Elige la hora de los datos';
@@ -138,9 +149,9 @@ var controlUI = document.createElement('div');
 
 
   
-var cadena = '<output for="map-hour" id="map-hour-label">00:00</output>';
+var cadena = '<output for="map-hour" id="map-hour-label">'+new Date().toHourInputValue()+':00</output>';
 
-cadena = cadena + '<input style="width:100%" value="0" type="range" min="0" max="23" step="1" id="map-hour" name="_map.hour" list="hour_list" onchange="outputUpdatemaphour(value)"> <datalist id=hour_list> <option>0</option> <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option></datalist>';
+cadena = cadena + '<input style="width:100%;height:5px;margin-top:12px;" value="'+new Date().toHourInputValue()+'" type="range" min="0" max="23" step="1" id="map-hour" name="_map.hour" list="hour_list" onchange="outputUpdatemaphour(value)"> <datalist id=hour_list> <option>0</option> <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option></datalist>';
 cadena = cadena + '<div onclick="ClickHourMinus()" id ="map-hour-minus" style="display:inline;" class="card" > - </div>';
 cadena = cadena + '<div onclick="ClickHourPlay()" id ="map-hour-play" style="display:inline;" class="card" > ▶ </div>';
 cadena = cadena + '<div onclick="ClickHourPlus()" id ="map-hour-plus" style="display:inline;" class="card" > + </div>';
@@ -207,7 +218,7 @@ if($("#map-hour-play").html() == " ▶ "){
     function(){
       ClickHourPlus();
     }
-    ,2000);
+    ,-1*$("#velocidad_animacion").val());
 }else{
   clearInterval(crono);
   $("#map-hour-play").html(" ▶ ");
